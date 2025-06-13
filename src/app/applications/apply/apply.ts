@@ -55,13 +55,29 @@ import { ToastService } from '../../services/toast.service';
           </div>
 
           <div class="mb-6">
+            <button
+              type="button"
+              (click)="analyzeResume()"
+              class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full mb-4"
+            >
+              Analyze Resume Before Submitting 
+            </button>
+          </div>
+
+          <div class="mb-6">
             <label for="resume" class="block text-gray-700 text-sm font-bold mb-2">Upload Resume (PDF only)</label>
             <input
               type="file"
               id="resume"
               (change)="onFileSelected($event)"
               accept=".pdf"
-              class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+              class="block w-full text-sm text-gray-900
+                     file:mr-4 file:py-2 file:px-4
+                     file:rounded-md file:border-0
+                     file:text-sm file:font-semibold
+                     file:bg-blue-50 file:text-blue-700
+                     hover:file:bg-blue-100
+                     border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
             />
             <div *ngIf="!selectedFile && applyForm.controls['resume'].touched" class="text-red-500 text-xs mt-1">
               Resume upload is required.
@@ -142,6 +158,10 @@ export class ApplyComponent implements OnInit {
       this.toastService.error('An unexpected error occurred while fetching job details: ' + error.message);
       this.router.navigate(['/my-jobs']);
     }
+  }
+
+  analyzeResume() {
+    window.open('https://resume-enhancer-phi.vercel.app/upload', '_blank');
   }
 
   onFileSelected(event: Event) {

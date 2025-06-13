@@ -149,9 +149,9 @@ export class JobDetailComponent implements OnInit {
   }
 
   shareJob(jobId: string) {
-    const jobUrl = `${window.location.origin}/jobs/${jobId}`; // Assuming the public job detail route is /jobs/:id
-    navigator.clipboard.writeText(jobUrl).then(() => {
-      this.toastService.success('Job link copied to clipboard!');
+    const applicationUrl = `${window.location.origin}/apply/${jobId}`;
+    navigator.clipboard.writeText(applicationUrl).then(() => {
+      this.toastService.success('Application link copied to clipboard!');
     }).catch(err => {
       this.toastService.error('Failed to copy link: ' + err);
       console.error('Could not copy text: ', err);
