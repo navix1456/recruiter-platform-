@@ -31,7 +31,7 @@ interface Job {
           </p>
           <p class="text-gray-500 text-sm mb-6">Posted: {{ job.created_at | date:'mediumDate' }}</p>
 
-          <div class="flex space-x-4">
+          <div class="flex space-x-4 mb-6">
             <a
               [routerLink]="['/applicants', job.id]"
               class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline inline-flex items-center justify-center"
@@ -56,6 +56,12 @@ interface Job {
             >
               Apply Now
             </a>
+            <button
+              (click)="shareJob(job.id)"
+              class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline inline-flex items-center justify-center"
+            >
+              Share Job
+            </button>
             <a routerLink="/my-jobs" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline inline-flex items-center justify-center">
               Back to Listings
             </a>
@@ -140,5 +146,15 @@ export class JobDetailComponent implements OnInit {
         this.toastService.error('An unexpected error occurred: ' + error.message);
       }
     }
+  }
+
+  shareJob(jobId: string) {
+    const jobUrl = `${window.location.origin}/jobs/${jobId}`; // Assuming the public job detail route is /jobs/:id
+    navigator.clipboard.writeText(jobUrl).then(() => {
+      this.toastService.success('Job link copied to clipboard!');
+    }).catch(err => {
+      this.toastService.error('Failed to copy link: ' + err);
+      console.error('Could not copy text: ', err);
+    });
   }
 }

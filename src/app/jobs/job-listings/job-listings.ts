@@ -43,6 +43,7 @@ interface Job {
               <a [routerLink]="['/applicants', job.id]" class="bg-green-600 hover:bg-green-700 text-white text-sm py-1 px-3 rounded focus:outline-none focus:shadow-outline inline-flex items-center justify-center">View Applicants</a>
               <a [routerLink]="['/edit-job', job.id]" class="bg-yellow-600 hover:bg-yellow-700 text-white text-sm py-1 px-3 rounded focus:outline-none focus:shadow-outline inline-flex items-center justify-center">Edit</a>
               <button (click)="onDeleteJob(job.id)" class="bg-red-600 hover:bg-red-700 text-white text-sm py-1 px-3 rounded focus:outline-none focus:shadow-outline">Delete</button>
+              <a [routerLink]="['/jobs', job.id]" class="bg-blue-600 hover:bg-blue-700 text-white text-sm py-1 px-3 rounded focus:outline-none focus:shadow-outline inline-flex items-center justify-center">View Details</a>
             </div>
           </div>
         </div>

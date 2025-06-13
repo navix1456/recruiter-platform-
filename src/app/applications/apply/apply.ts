@@ -13,7 +13,17 @@ import { ToastService } from '../../services/toast.service';
     <div class="min-h-screen flex items-center justify-center bg-gray-100 p-8">
       <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
         <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Apply for Job</h2>
-        <p *ngIf="jobTitle" class="text-center text-gray-600 mb-6">Applying for: <span class="font-semibold">{{ jobTitle }}</span></p>
+        <div *ngIf="jobTitle" class="job-details-section text-gray-700 mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+          <p class="text-lg font-semibold mb-2">Applying for: {{ jobTitle }}</p>
+          <div *ngIf="jobDescription" class="mb-2">
+            <p class="font-medium">Description:</p>
+            <p class="text-sm text-gray-600">{{ jobDescription }}</p>
+          </div>
+          <div *ngIf="jobSalary" class="mb-2">
+            <p class="font-medium">Salary:</p>
+            <p class="text-sm text-gray-600">{{ jobSalary }}</p>
+          </div>
+        </div>
 
         <form [formGroup]="applyForm" (ngSubmit)="onApply()">
           <div class="mb-4">
@@ -81,6 +91,8 @@ export class ApplyComponent implements OnInit {
   applyForm!: FormGroup;
   jobId: string | null = null;
   jobTitle: string = '';
+  jobDescription: string = '';
+  jobSalary: string = '';
   selectedFile: File | null = null;
 
   constructor(
@@ -93,25 +105,25 @@ export class ApplyComponent implements OnInit {
     this.applyForm = this.fb.group({
       candidateName: ['', Validators.required],
       candidateEmail: ['', [Validators.required, Validators.email]],
-      resume: [null, Validators.required], // Placeholder for file input validity
+      resume: [null, Validators.required],
     });
   }
 
   async ngOnInit() {
     this.jobId = this.route.snapshot.paramMap.get('jobId');
     if (this.jobId) {
-      await this.fetchJobTitle(this.jobId);
+      await this.fetchJobDetails(this.jobId);
     } else {
       this.toastService.error('No job ID provided for application.');
       this.router.navigate(['/my-jobs']);
     }
   }
 
-  async fetchJobTitle(jobId: string) {
+  async fetchJobDetails(jobId: string) {
     try {
       const { data, error } = await this.supabaseService.client
         .from('jobs')
-        .select('title')
+        .select('title, description, salary')
         .eq('id', jobId)
         .single();
 
@@ -120,6 +132,8 @@ export class ApplyComponent implements OnInit {
         this.router.navigate(['/my-jobs']);
       } else if (data) {
         this.jobTitle = data.title;
+        this.jobDescription = data.description;
+        this.jobSalary = data.salary;
       } else {
         this.toastService.error('Job not found.');
         this.router.navigate(['/my-jobs']);
@@ -135,7 +149,7 @@ export class ApplyComponent implements OnInit {
     const fileList: FileList | null = element.files;
     if (fileList && fileList.length > 0) {
       this.selectedFile = fileList[0];
-      this.applyForm.patchValue({ resume: this.selectedFile }); // Update form control value
+      this.applyForm.patchValue({ resume: this.selectedFile });
     } else {
       this.selectedFile = null;
       this.applyForm.patchValue({ resume: null });
@@ -143,16 +157,15 @@ export class ApplyComponent implements OnInit {
   }
 
   async onApply() {
-    this.applyForm.controls['resume'].markAsTouched(); // Mark resume as touched for validation message
+    this.applyForm.controls['resume'].markAsTouched();
     if (!this.selectedFile) {
-      return; // Prevent submission if no file selected
+      return;
     }
 
     if (this.applyForm.valid && this.jobId && this.selectedFile) {
       const { candidateName, candidateEmail } = this.applyForm.value;
 
       try {
-        // 1. Upload resume to Supabase Storage
         const filePath = `${this.jobId}/${this.selectedFile.name}`;
         const { data: uploadData, error: uploadError } = await this.supabaseService.client.storage
           .from('resumes')
@@ -167,9 +180,8 @@ export class ApplyComponent implements OnInit {
           return;
         }
 
-        const resumeUrl = uploadData.path; // This is the path within the bucket
+        const resumeUrl = uploadData.path;
 
-        // 2. Insert application details into Supabase database
         const { data: applicationData, error: applicationError } = await this.supabaseService.client
           .from('applications')
           .insert([
@@ -182,7 +194,6 @@ export class ApplyComponent implements OnInit {
           ]);
 
         if (applicationError) {
-          // If application insertion fails, attempt to delete the uploaded resume
           try {
             await this.supabaseService.client.storage.from('resumes').remove([filePath]);
           } catch (deleteError) {
@@ -191,7 +202,7 @@ export class ApplyComponent implements OnInit {
           this.toastService.error('Error submitting application: ' + applicationError.message);
         } else {
           this.toastService.success('Application submitted successfully!');
-          this.router.navigate(['/my-jobs']); // Redirect to job listings or a success page
+          this.router.navigate(['/my-jobs']);
         }
       } catch (error: any) {
         this.toastService.error('An unexpected error occurred during application submission: ' + error.message);
