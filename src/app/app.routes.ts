@@ -13,13 +13,22 @@ import { authGuard } from './auth-guard';
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
-  { path: 'post-job', component: PostJobComponent, canActivate: [authGuard] },
-  { path: 'my-jobs', component: JobListingsComponent, canActivate: [authGuard] },
-  { path: 'jobs/:id', component: JobDetailComponent, canActivate: [authGuard] },
-  { path: 'edit-job/:id', component: EditJobComponent, canActivate: [authGuard] },
-  { path: 'apply/:jobId', component: ApplyComponent },
-  { path: 'applicants/:jobId', component: ViewApplicantsComponent, canActivate: [authGuard] },
+  { 
+    path: 'apply/:jobId', 
+    component: ApplyComponent,
+    data: { standalone: true } // Mark this route as standalone
+  },
+  {
+    path: '',
+    children: [
+      { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
+      { path: 'post-job', component: PostJobComponent, canActivate: [authGuard] },
+      { path: 'my-jobs', component: JobListingsComponent, canActivate: [authGuard] },
+      { path: 'jobs/:id', component: JobDetailComponent, canActivate: [authGuard] },
+      { path: 'edit-job/:id', component: EditJobComponent, canActivate: [authGuard] },
+      { path: 'applicants/:jobId', component: ViewApplicantsComponent, canActivate: [authGuard] },
+    ]
+  },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' } // Redirect unknown paths to login
 ];
