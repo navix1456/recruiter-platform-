@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { ToastComponent } from './components/toast/toast.component';
 import { HeaderComponent } from './components/header/header.component';
@@ -17,18 +17,28 @@ import { filter } from 'rxjs/operators';
   `,
   styleUrl: './app.css'
 })
-export class App {
+export class App implements OnInit {
   protected title = 'recruiter-portal';
-  showHeader = true;
+  showHeader = false;
 
-  constructor(private router: Router) {
+  constructor(private router: Router) {}
+
+  ngOnInit() {
+    // Set initial header visibility based on current route
+    this.updateHeaderVisibility(this.router.url);
+
+    // Subscribe to route changes
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
-      // Don't show header on login, register, and apply pages
-      this.showHeader = !['/login', '/register', '/apply'].some(path => 
-        event.url.startsWith(path)
-      );
+      this.updateHeaderVisibility(event.url);
     });
+  }
+
+  private updateHeaderVisibility(url: string) {
+    // Don't show header on login, register, apply pages, or root path
+    this.showHeader = !['/login', '/register', '/apply', '/'].some(path => 
+      url.startsWith(path)
+    );
   }
 }

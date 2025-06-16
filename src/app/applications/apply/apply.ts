@@ -220,6 +220,8 @@ export class ApplyComponent implements OnInit {
               candidate_name: candidateName,
               candidate_email: candidateEmail,
               resume_url: resumeUrl,
+              status: 'new',
+              is_shortlisted: false
             },
           ]);
 
@@ -232,7 +234,7 @@ export class ApplyComponent implements OnInit {
           this.toastService.error('Error submitting application: ' + applicationError.message);
         } else {
           this.toastService.success('Application submitted successfully!');
-          this.router.navigate(['/my-jobs']);
+          this.router.navigate(['/jobs', this.jobId]);
         }
       } catch (error: any) {
         this.toastService.error('An unexpected error occurred during application submission: ' + error.message);
